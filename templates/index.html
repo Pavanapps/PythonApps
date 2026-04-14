@@ -1,37 +1,250 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>GST Calculator</title>
+    <meta charset="UTF-8">
+    <title>GST Calculator Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <style>
-        body{font-family:Arial;text-align:center;margin-top:40px}
-        input,select,button{padding:10px;margin:5px;width:200px}
-        .box{border:1px solid #ddd;padding:20px;width:300px;margin:auto}
+        body{
+            font-family:'Segoe UI',sans-serif;
+            background:#f5f7fb;
+            margin:0;
+        }
+
+        header{
+            background:#2c7be5;
+            color:#fff;
+            padding:15px;
+            text-align:center;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .container{
+            display:flex;
+            flex-wrap:wrap;
+            gap:20px;
+            padding:20px;
+        }
+
+        .card{
+            background:#fff;
+            border-radius:12px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+            padding:20px;
+        }
+
+        .calculator{
+            flex:1;
+            min-width:280px;
+            position:sticky;
+            top:20px;
+            height:fit-content;
+        }
+
+        .table-section{
+            flex:2;
+            min-width:300px;
+        }
+
+        input,select,button{
+            width:100%;
+            padding:12px;
+            margin:10px 0;
+            border-radius:8px;
+            border:1px solid #ddd;
+            font-size:16px;
+        }
+
+        button{
+            background:#2c7be5;
+            color:#fff;
+            border:none;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        button:hover{
+            background:#1a5fd1;
+        }
+
+        .result{
+            margin-top:15px;
+            font-size:18px;
+            font-weight:bold;
+            color:#2c7be5;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:10px;
+        }
+
+        th,td{
+            padding:12px;
+            border-bottom:1px solid #eee;
+            text-align:left;
+        }
+
+        th{
+            background:#fafafa;
+        }
+
+        tr:hover{
+            background:#f1f5ff;
+            cursor:pointer;
+        }
+
+        .active-row{
+            background:#dbe7ff !important;
+        }
+
+        .search{
+            width:100%;
+            padding:12px;
+            border-radius:8px;
+            border:1px solid #ddd;
+        }
+
+        .ads{
+            margin:20px;
+            padding:20px;
+            background:#fff;
+            text-align:center;
+            border-radius:10px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            color:#999;
+        }
+
+        @media(max-width:768px){
+            .container{
+                flex-direction:column;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<h2>GST Calculator</h2>
+<header>💰 GST Calculator Tool</header>
 
-<div class="box">
-<form method="POST">
-    <input type="number" step="0.01" name="amount" placeholder="Amount" required><br>
-
-    <select name="gst_rate">
-        <option value="5">5% GST</option>
-        <option value="12">12% GST</option>
-        <option value="18" selected>18% GST</option>
-        <option value="28">28% GST</option>
-    </select><br>
-
-    <button name="action" value="add">Add GST</button>
-    <button name="action" value="remove">Remove GST</button>
-</form>
-
-{% if result %}
-<h3>Total: ₹ {{ result }}</h3>
-<p>GST: ₹ {{ gst_amount }}</p>
-{% endif %}
+<div class="ads">
+    AdSense Banner Space
 </div>
+
+<div class="container">
+
+    <!-- Calculator -->
+    <div class="card calculator">
+        <h2>GST Calculator</h2>
+
+        <input type="number" id="amount" placeholder="Enter Amount">
+
+        <select id="gst_rate">
+            <option value="5">5%</option>
+            <option value="12">12%</option>
+            <option value="18" selected>18%</option>
+            <option value="28">28%</option>
+        </select>
+
+        <select id="action">
+            <option value="add">Add GST</option>
+            <option value="remove">Remove GST</option>
+        </select>
+
+        <button onclick="calculate()">Calculate</button>
+
+        <div class="result" id="result">Total: ₹0</div>
+        <div id="gstValue">GST: ₹0</div>
+
+        <button onclick="copyResult()">📋 Copy Result</button>
+    </div>
+
+    <!-- Table -->
+    <div class="card table-section">
+        <h2>Find GST Rate (Click Row)</h2>
+
+        <input type="text" class="search" id="searchInput" placeholder="Search product...">
+
+        <table id="gstTable">
+            <thead>
+                <tr>
+                    <th>HSN</th>
+                    <th>Category</th>
+                    <th>Product</th>
+                    <th>GST</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr onclick="selectRow(this,'5')"><td>0401</td><td>Dairy</td><td>Milk</td><td>5%</td></tr>
+                <tr onclick="selectRow(this,'18')"><td>1704</td><td>Confectionery</td><td>Chocolates</td><td>18%</td></tr>
+                <tr onclick="selectRow(this,'18')"><td>8501</td><td>Electronics</td><td>Mobiles</td><td>18%</td></tr>
+                <tr onclick="selectRow(this,'28')"><td>8703</td><td>Vehicles</td><td>Cars</td><td>28%</td></tr>
+                <tr onclick="selectRow(this,'12')"><td>3004</td><td>Medicines</td><td>Drugs</td><td>12%</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="ads">
+    AdSense Footer Banner
+</div>
+
+<script>
+const amountInput = document.getElementById("amount");
+const gstSelect = document.getElementById("gst_rate");
+
+function calculate(){
+    let amount = parseFloat(amountInput.value) || 0;
+    let rate = parseFloat(gstSelect.value);
+    let action = document.getElementById("action").value;
+
+    let gst = 0;
+    let total = 0;
+
+    if(action === "add"){
+        gst = (amount * rate) / 100;
+        total = amount + gst;
+    } else {
+        gst = amount * rate / (100 + rate);
+        total = amount - gst;
+    }
+
+    document.getElementById("result").innerText = "Total: ₹ " + total.toFixed(2);
+    document.getElementById("gstValue").innerText = "GST: ₹ " + gst.toFixed(2);
+}
+
+// Row selection
+function selectRow(row, rate){
+    document.querySelectorAll("#gstTable tr").forEach(r => r.classList.remove("active-row"));
+    row.classList.add("active-row");
+
+    gstSelect.value = rate;
+    calculate();
+}
+
+// Search filter
+document.getElementById("searchInput").addEventListener("keyup", function(){
+    let value = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#gstTable tbody tr");
+
+    rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+    });
+});
+
+// Copy result
+function copyResult(){
+    let text = document.getElementById("result").innerText + " | " +
+               document.getElementById("gstValue").innerText;
+
+    navigator.clipboard.writeText(text);
+    alert("Copied!");
+}
+</script>
 
 </body>
 </html>
